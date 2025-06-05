@@ -22,7 +22,7 @@ public class EmployeeService {
     // ==================== CREATE OPERATIONS ====================
 
     @Transactional
-    public void createEmployee(Employee employee){
+    public void save(Employee employee){
         employeeRepository.save(employee);
     }
 

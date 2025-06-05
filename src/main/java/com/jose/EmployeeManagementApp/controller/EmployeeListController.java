@@ -106,7 +106,7 @@ public class EmployeeListController {
     @PostMapping("/save")
     public String saveEmployee(@ModelAttribute Employee employee, RedirectAttributes redirectAttributes){
         try {
-            employeeService.createEmployee(employee);
+            employeeService.save(employee);
             redirectAttributes.addFlashAttribute("successMessage", "Employee added successfully!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error adding employee: " + e.getMessage());

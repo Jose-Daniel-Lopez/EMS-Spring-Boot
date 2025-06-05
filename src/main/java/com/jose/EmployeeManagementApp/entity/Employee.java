@@ -31,7 +31,7 @@ public class Employee {
     private String position;
     private String salary;
 
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date hireDate;
 
     // Used to calculate the difference between today's date and hire date to be displayed in employees table
