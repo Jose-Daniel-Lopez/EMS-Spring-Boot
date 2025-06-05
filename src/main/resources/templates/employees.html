@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Directory - Enterprise Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #64748b;
+            --accent-color: #0f172a;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --light-bg: #f8fafc;
+            --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --card-shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Sidebar Styles - UNCHANGED */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 70px;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            overflow: visible;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar:hover {
+            width: 260px;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-header h4 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            transition:
+                opacity 0.5s ease 0.2s,
+                height 0.3s cubic-bezier(0.4,0,0.2,1) 0s;
+        }
+
+        .sidebar:hover .sidebar-header h4 {
+            opacity: 1;
+            height: 1.4em;
+            overflow: visible;
+        }
+
+        .company-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+            overflow: hidden;
+        }
+
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            justify-content: center;
+            white-space: nowrap;
+            width: 100%;
+            height: 48px;
+            min-height: 48px;
+        }
+
+        .sidebar:hover .nav-link {
+            padding: 0.75rem 1.5rem;
+            justify-content: flex-start;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .sidebar:hover .nav-link:hover {
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: #fff;
+        }
+
+        .nav-link i {
+            width: 20px;
+            height: 20px;
+            margin-right: 0;
+            text-align: center;
+            transition: margin 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .sidebar:hover .nav-link i {
+            margin-right: 0.75rem;
+        }
+
+        .sidebar:not(:hover) .nav-link i {
+            margin-right: 0 !important;
+        }
+
+        .nav-text {
+            opacity: 0;
+            transition: opacity 0.3s ease 0.1s;
+            overflow: hidden;
+            width: 0;
+            display: inline-block;
+        }
+
+        .sidebar:hover .nav-text {
+            opacity: 1;
+            width: auto;
+        }
+
+        .nav-link::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 70px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1001;
+        }
+
+        .nav-link:hover::after {
+            opacity: 1;
+        }
+
+        .sidebar:hover .nav-link::after {
+            opacity: 0;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            color: rgba(255,255,255,0.8);
+            justify-content: center;
+            transition: justify-content 0.3s ease;
+        }
+
+        .sidebar:hover .user-info {
+            justify-content: flex-start;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0;
+            font-size: 0.8rem;
+            transition: margin 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .sidebar:hover .user-avatar {
+            margin-right: 0.5rem;
+        }
+
+        .user-details {
+            opacity: 0;
+            transition: opacity 0.3s ease 0.1s;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .sidebar:hover .user-details {
+            opacity: 1;
+        }
+
+        .main-content {
+            margin-left: 70px;
+            transition: margin-left 0.3s ease;
+            min-height: 100vh;
+        }
+
+        .sidebar:hover ~ .main-content {
+            margin-left: 260px;
+        }
+
+        /* Professional Enterprise Styles */
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--accent-color);
+            line-height: 1.6;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1e40af 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border: none;
+            box-shadow: var(--card-shadow);
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .stats-card:hover {
+            box-shadow: var(--card-shadow-hover);
+            transform: translateY(-1px);
+        }
+
+        .stats-card i {
+            color: var(--primary-color);
+        }
+
+        .stats-card h3 {
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        .stats-card p {
+            color: var(--secondary-color);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.875rem;
+        }
+
+        .btn-custom {
+            border-radius: 6px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            text-transform: none;
+            letter-spacing: 0;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-light.btn-custom {
+            background-color: white;
+            color: var(--primary-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-light.btn-custom:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            border: none;
+        }
+
+        .table thead th {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 1.25rem 1rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .table tbody td {
+            padding: 1.25rem 1rem;
+            vertical-align: middle;
+            border-color: #f1f5f9;
+            color: var(--accent-color);
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .employee-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1e40af 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .fw-bold {
+            font-weight: 600 !important;
+            color: var(--accent-color);
+        }
+
+        .text-muted {
+            color: var(--secondary-color) !important;
+            font-size: 0.875rem;
+        }
+
+        .salary-badge {
+            background-color: #dcfce7;
+            color: var(--success-color);
+            padding: 0.375rem 0.875rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .department-badge {
+            padding: 0.375rem 0.875rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .dept-engineering { background-color: #dbeafe; color: var(--primary-color); }
+        .dept-hr { background-color: #fce7f3; color: #be185d; }
+        .dept-marketing { background-color: #f3e8ff; color: #7c3aed; }
+        .dept-sales { background-color: #dcfce7; color: var(--success-color); }
+        .dept-finance { background-color: #fed7aa; color: var(--warning-color); }
+        .dept-default { background-color: #f1f5f9; color: var(--secondary-color); }
+
+        .btn-group .btn {
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-success {
+            color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .btn-outline-success:hover {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-danger {
+            color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        .btn-outline-danger:hover {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+            transform: translateY(-1px);
+        }
+
+        .form-control, .form-select {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .input-group-text {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            color: var(--secondary-color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            border-radius: 6px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background-color: #1e40af;
+            border-color: #1e40af;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.4);
+        }
+
+        .fw-medium {
+            font-weight: 500;
+            color: var(--accent-color);
+        }
+
+        .text-nowrap {
+            color: var(--accent-color);
+        }
+
+        /* Custom grid for 5 equal columns */
+        .col-md-2-4 {
+            flex: 0 0 auto;
+            width: 20%;
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+
+            .sidebar:hover {
+                width: 260px;
+            }
+
+            .main-content {
+                margin-left: 70px;
+            }
+
+            .sidebar:hover ~ .main-content {
+                margin-left: 260px;
+            }
+
+            .col-md-2-4 {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Sidebar - UNCHANGED -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="company-logo">
+            <i class="fas fa-building"></i>
+        </div>
+        <h4>EMS Pro</h4>
+    </div>
+
+    <nav class="sidebar-nav">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="/dashboard" data-tooltip="Dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/employees" data-tooltip="All Employees">
+                    <i class="fas fa-users"></i>
+                    <span class="nav-text">All employees</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/employees/add" data-tooltip="Add Employee">
+                    <i class="fas fa-user-plus"></i>
+                    <span class="nav-text">Add employee</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/reports" data-tooltip="Reports">
+                    <i class="fas fa-chart-bar"></i>
+                    <span class="nav-text">Reports</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/attendance" data-tooltip="Attendance">
+                    <i class="fas fa-calendar-check"></i>
+                    <span class="nav-text">Attendance</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/settings" data-tooltip="Settings">
+                    <i class="fas fa-cog"></i>
+                    <span class="nav-text">Settings</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">JD</div>
+            <div class="user-details">
+                <div style="font-size: 0.85rem; font-weight: 500;">Jose Daniel</div>
+                <div style="font-size: 0.7rem; opacity: 0.7;">Administrator</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content" id="mainContent">
+    <!-- Header Section -->
+    <div class="header-section mb-5">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-0">
+                        <i class="fas fa-users me-3"></i>Employee Directory
+                    </h1>
+                    <p class="mb-0 mt-2 opacity-75">Comprehensive employee management and directory</p>
+                    <div th:if="${filterType}" class="mt-2">
+                        <span class="badge bg-light text-dark" th:text="${filterType}"></span>
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="/employees/add" class="btn btn-light btn-custom">
+                        <i class="fas fa-plus me-2"></i>Add New Employee
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Statistics Cards -->
+        <div class="row mb-4 justify-content-center">
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-users fa-2x mb-3"></i>
+                    <h3 class="mb-1" th:text="${#lists.size(employees)}">0</h3>
+                    <p class="mb-0">Total Employees</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-building fa-2x mb-3"></i>
+                    <h3 class="mb-1" th:text="${#sets.size(#sets.toSet(employees.![department]))}">0</h3>
+                    <p class="mb-0">Departments</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-briefcase fa-2x mb-3"></i>
+                    <h3 class="mb-1" th:text="${#sets.size(#sets.toSet(employees.![position]))}">0</h3>
+                    <p class="mb-0">Positions</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <form class="d-flex ms-auto" role="search" th:action="@{/employees/search}" method="get">
+                    <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
+                        <input type="text" name="query" class="form-control"
+                               placeholder="Search employees by name, email, or position..."
+                               th:value="${searchQuery}">
+                    </div>
+                    <button type="submit" class="btn btn-primary ms-2">Search</button>
+                </form>
+            </div>
+
+            <div class="col-md-3">
+                <form method="GET" action="/employees/searchByDepartment" id="departmentForm">
+                    <select class="form-select" name="department" onchange="document.getElementById('departmentForm').submit();">
+                        <option value="All departments"
+                                th:selected="${selectedDepartment == null or selectedDepartment == 'All departments'}">
+                            All departments
+                        </option>
+                        <option th:each="dept : ${allDepartments}"
+                                th:value="${dept}"
+                                th:text="${dept}"
+                                th:selected="${selectedDepartment == dept}">
+                            Department
+                        </option>
+                    </select>
+                </form>
+            </div>
+
+            <div class="col-md-3">
+                <form method="GET" action="/employees/searchEmployeesByPosition" id="positionForm">
+                    <select class="form-select" name="position" onchange="document.getElementById('positionForm').submit();">
+                        <option value="All positions"
+                                th:selected="${selectedPosition == null or selectedPosition == 'All positions'}">
+                            All positions
+                        </option>
+                        <option th:each="pos : ${allPositions}"
+                                th:value="${pos}"
+                                th:text="${pos}"
+                                th:selected="${selectedPosition == pos}">
+                            Position
+                        </option>
+                    </select>
+                </form>
+            </div>
+        </div>
+
+        <!-- Employee Table -->
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th scope="col">
+                            <i class="fas fa-user me-2"></i>Employee
+                        </th>
+                        <th scope="col">
+                            <i class="fas fa-envelope me-2"></i>Contact
+                        </th>
+                        <th scope="col">
+                            <i class="fas fa-building me-2"></i>Department
+                        </th>
+                        <th scope="col">
+                            <i class="fas fa-briefcase me-2"></i>Position
+                        </th>
+                        <th scope="col">
+                            <i class="fas fa-euro-sign me-2"></i>Salary
+                        </th>
+                        <th scope="col">
+                            <i class="fas fa-calendar me-2"></i>Hire Date
+                        </th>
+                        <th scope="col">
+                            <i class="fas fa-cogs me-2"></i>Actions
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="employee : ${employees}" class="employee-row">
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="employee-avatar me-3"
+                                     th:text="${#strings.substring(employee.firstName, 0, 1) + #strings.substring(employee.lastName, 0, 1)}">
+                                </div>
+                                <div>
+                                    <div class="fw-bold" th:text="${employee.firstName + ' ' + employee.lastName}">
+                                        John Doe
+                                    </div>
+                                    <small class="text-muted" th:text="'ID: ' + ${employee.id}">ID: 001</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <div class="mb-1">
+                                    <i class="fas fa-envelope text-muted me-2"></i>
+                                    <span th:text="${employee.email}">john.doe@company.com</span>
+                                </div>
+                                <div th:if="${employee.phoneNumber}">
+                                    <i class="fas fa-phone text-muted me-2"></i>
+                                    <small class="text-muted" th:text="${employee.phoneNumber}">+1234567890</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                                <span class="department-badge"
+                                      th:classappend="${#strings.toLowerCase(employee.department) == 'engineering'} ? 'dept-engineering' :
+                                                     (${#strings.toLowerCase(employee.department) == 'hr'} ? 'dept-hr' :
+                                                     (${#strings.toLowerCase(employee.department) == 'marketing'} ? 'dept-marketing' :
+                                                     (${#strings.toLowerCase(employee.department) == 'sales'} ? 'dept-sales' :
+                                                     (${#strings.toLowerCase(employee.department) == 'finance'} ? 'dept-finance' : 'dept-default'))))"
+                                      th:text="${employee.department}">
+                                    Engineering
+                                </span>
+                        </td>
+                        <td>
+                            <div class="fw-medium" th:text="${employee.position}">Software developer</div>
+                        </td>
+                        <td>
+                                <span class="salary-badge" th:text="'€' + ${#numbers.formatDecimal(T(java.lang.Double).parseDouble(employee.salary), 0, 'COMMA', 0, 'POINT')}">
+                                    €75,000
+                                </span>
+                        </td>
+                        <td>
+                            <div class="text-nowrap">
+                                <i class="fas fa-calendar-alt text-muted me-2"></i>
+                                <span th:text="${#dates.format(employee.hireDate, 'dd-MM-yyyy')}">
+                                        15-01-2023
+                                    </span>
+                            </div>
+                            <small class="text-muted d-block mt-1"
+                                   th:if="${employee.hireDate != null}"
+                                   th:text="'(' + ${employee.daysFromHire} + ' days ago)'">
+                                (500 days ago)
+                            </small>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a
+                                        class="btn btn-sm btn-outline-primary"
+                                        th:href="@{/employees/view/{employeeId}(employeeId=${employee.id})}"
+                                        title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-success"
+                                        th:onclick="'editEmployee(' + ${employee.id} + ')'"
+                                        title="Edit Employee">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a
+                                        class="btn btn-sm btn-outline-danger"
+                                        th:href="@{/employees/delete/{employeeId}(employeeId=${employee.id})}"
+                                        title="Delete Employee">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Empty State (shown when no employees) -->
+        <div th:if="${#lists.isEmpty(employees)}" class="text-center py-5">
+            <div class="stats-card">
+                <i class="fas fa-users fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No Employees Found</h4>
+                <p class="text-muted">Start by adding your first employee to the system.</p>
+                <a href="/employees/add" class="btn btn-primary btn-custom">
+                    <i class="fas fa-plus me-2"></i>Add First Employee
+                </a>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div th:if="${!#lists.isEmpty(employees)}" class="d-flex justify-content-between align-items-center mt-4 mb-4">
+            <div class="text-muted">
+                Showing <span th:text="${#lists.size(employees)}">10</span> employees
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMS Pro - Employee Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #64748b;
+            --accent-color: #0f172a;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --light-bg: #f8fafc;
+            --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --card-shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--accent-color);
+            line-height: 1.6;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color) !important;
+        }
+
+        .employee-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1e40af 100%);
+            border: none;
+            box-shadow: var(--card-shadow);
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .profile-avatar i {
+            font-size: 3rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .employee-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        .employee-title {
+            font-size: 1.25rem;
+            font-weight: 500;
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+
+        .tenure-badge {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+
+        .info-card {
+            border: none;
+            box-shadow: var(--card-shadow);
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .info-card:hover {
+            box-shadow: var(--card-shadow-hover);
+            transform: translateY(-1px);
+        }
+
+        .card-header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-bottom: 0;
+        }
+
+        .info-row {
+            padding: 1rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--secondary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--accent-color);
+        }
+
+        .info-value.large {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            padding: 0.375rem 0.875rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .status-active {
+            background-color: #dcfce7;
+            color: var(--success-color);
+        }
+
+        .department-badge {
+            background-color: #dbeafe;
+            color: var(--primary-color);
+        }
+
+        .salary-display {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--success-color);
+        }
+
+        .stats-card {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--secondary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+        }
+
+        .btn-enterprise {
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            font-weight: 500;
+            text-transform: none;
+            letter-spacing: 0;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary-enterprise {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary-enterprise:hover {
+            background-color: #1e40af;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.4);
+        }
+
+        .btn-secondary-enterprise {
+            background-color: white;
+            color: var(--secondary-color);
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary-enterprise:hover {
+            background-color: #f8fafc;
+            color: var(--accent-color);
+            border-color: #cbd5e1;
+        }
+
+        .btn-danger-enterprise {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger-enterprise:hover {
+            background-color: #b91c1c;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+        }
+
+        .breadcrumb {
+            background: none;
+            padding: 0;
+            margin-bottom: 2rem;
+        }
+
+        .breadcrumb-item a {
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .breadcrumb-item.active {
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        .action-toolbar {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+        }
+
+        .modal-content {
+            border: none;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #e2e8f0;
+            padding: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/employees">Employees</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Employee Profile</li>
+        </ol>
+    </nav>
+
+    <!-- Employee Header -->
+    <div class="card employee-header text-white mb-4">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <div class="profile-avatar rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+                <div class="col">
+                    <h1 class="employee-name" th:text="${employee.firstName + ' ' + employee.lastName}">John Doe</h1>
+                    <p class="employee-title" th:text="${employee.position}">Senior Software Engineer</p>
+                    <div class="mt-3">
+                        <span class="status-badge status-active me-2">Active</span>
+                        <span class="status-badge department-badge" th:text="${employee.department}">Engineering</span>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="tenure-badge d-flex justify-content-center align-items-center" style="min-height: 100px;">
+                        <div class="text-center">
+                            <div class="fw-bold" th:text="${employee.daysFromHire} + ' days'">1,247 days</div>
+                            <small class="opacity-75">with company</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Personal Information -->
+        <div class="col-lg-4 mb-4">
+            <div class="card info-card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-user me-2 text-primary"></i>Personal Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <div class="info-label">Full Name</div>
+                        <div class="info-value large" th:text="${employee.firstName + ' ' + employee.lastName}">John Doe</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Email Address</div>
+                        <div class="info-value">
+                            <a th:href="'mailto:' + ${employee.email}"
+                               th:text="${employee.email}"
+                               class="text-decoration-none">john.doe@company.com</a>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Phone Number</div>
+                        <div class="info-value">
+                            <a th:href="'tel:' + ${employee.phoneNumber}"
+                               th:text="${employee.phoneNumber}"
+                               class="text-decoration-none">+1 (555) 123-4567</a>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">Employee ID</div>
+                        <div class="info-value" th:text="${employee.id}">Engineering</div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Employment Details -->
+        <div class="col-lg-4 mb-4">
+            <div class="card info-card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-briefcase me-2 text-success"></i>Employment Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <div class="info-label">Department</div>
+                        <div class="info-value" th:text="${employee.department}">Engineering</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Position</div>
+                        <div class="info-value large" th:text="${employee.position}">Senior Software Engineer</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Hire Date</div>
+                        <div class="info-value" th:text="${#dates.format(employee.hireDate, 'MMMM dd, yyyy')}">March 15, 2021</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Annual Salary</div>
+                        <div class="info-value large" th:text="'$' + ${employee.salary}">125000€</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employment Statistics -->
+        <div class="col-lg-4 mb-4">
+            <div class="card info-card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-chart-line me-2 text-warning"></i>Employment Statistics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <div class="stats-card">
+                                <div class="stat-number text-primary" th:text="${employee.daysFromHire}">1,247</div>
+                                <div class="stat-label">Days Employed</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stats-card">
+                                <div class="stat-number text-success" th:text="${#numbers.formatDecimal(employee.daysFromHire / 365.0, 1, 1)}">3.4</div>
+                                <div class="stat-label">Years</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stats-card">
+                                <div class="stat-number text-info" th:text="${#numbers.formatDecimal(employee.daysFromHire / 30.0, 0, 0)}">41</div>
+                                <div class="stat-label">Months</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Toolbar -->
+    <div class="action-toolbar">
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="/employees" class="btn btn-secondary-enterprise btn-enterprise">
+                <i class="fas fa-arrow-left me-2"></i>Back to Employee Directory
+            </a>
+            <div>
+                <a th:href="@{'/employees/edit/' + ${employee.id}}" class="btn btn-primary-enterprise btn-enterprise me-3">
+                    <i class="fas fa-edit me-2"></i>Edit Profile
+                </a>
+                <button type="button" class="btn btn-danger-enterprise btn-enterprise" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                    <i class="fas fa-trash-alt me-2"></i>Deactivate Employee
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirm Employee Deactivation
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">You are about to deactivate the following employee:</p>
+                <div class="bg-light p-3 rounded mb-3">
+                    <strong th:text="${employee.firstName + ' ' + employee.lastName}">John Doe</strong><br>
+                    <small class="text-muted" th:text="${employee.position + ' • ' + employee.department}">Senior Software Engineer • Engineering</small>
+                </div>
+                <p class="text-danger mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    This action will deactivate the employee's access to company systems. This action can be reversed by HR administrators.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary-enterprise btn-enterprise" data-bs-dismiss="modal">Cancel</button>
+                <form th:action="@{'/employees/delete/' + ${employee.id}}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-danger-enterprise btn-enterprise">
+                        <i class="fas fa-user-times me-2"></i>Deactivate Employee
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
