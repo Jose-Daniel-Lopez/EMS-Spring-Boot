@@ -361,7 +361,7 @@
                     </div>
                     <div class="info-row">
                         <div class="info-label">Annual Salary</div>
-                        <div class="info-value large" th:text="'$' + ${employee.salary}">125000€</div>
+                        <div class="info-value large" th:text="'$' + ${#numbers.formatDecimal(T(java.lang.Double).parseDouble(employee.salary), 0, 'COMMA', 0, 'POINT')}"> </div>
                     </div>
                 </div>
             </div>
