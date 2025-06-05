@@ -114,31 +114,6 @@ public class EmployeeListController {
         return "redirect:/employees/";
     }
 
-    // ==================== UPDATE OPERATIONS ====================
-
-    // Show edit employee form
-    @GetMapping("/edit/{theId}")
-    public String showEditForm(@PathVariable Long theId, Model model){
-        Optional<Employee> employee = employeeService.findEmployeeById(theId);
-        if(employee.isPresent()) {
-            model.addAttribute("employee", employee.get());
-            return "edit-employee"; // You'll need to create this template
-        }
-        return "redirect:/employees/";
-    }
-
-    // Handle form submission for updating employee
-    @PostMapping("/update/{theId}")
-    public String updateEmployee(@PathVariable Long theId, @ModelAttribute Employee employee, RedirectAttributes redirectAttributes){
-        try {
-            employeeService.updateEmployeeById(theId, employee);
-            redirectAttributes.addFlashAttribute("successMessage", "Employee updated successfully!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error updating employee: " + e.getMessage());
-        }
-        return "redirect:/employees/";
-    }
-
     // ==================== DELETE OPERATIONS ====================
 
     // Handle delete requests

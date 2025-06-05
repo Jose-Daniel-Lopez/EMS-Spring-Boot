@@ -776,11 +776,12 @@
                                         title="View Details">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <button type="button" class="btn btn-sm btn-outline-success"
-                                        th:onclick="'editEmployee(' + ${employee.id} + ')'"
+                                <a
+                                        class="btn btn-sm btn-outline-success"
+                                        th:href="@{/employees/edit/{employeeId}(employeeId=${employee.id})}"
                                         title="Edit Employee">
                                     <i class="fas fa-edit"></i>
-                                </button>
+                                </a>
                                 <a
                                         class="btn btn-sm btn-outline-danger"
                                         th:href="@{/employees/delete/{employeeId}(employeeId=${employee.id})}"

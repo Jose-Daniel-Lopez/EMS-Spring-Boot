@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Employee - Enterprise Management System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+        --primary-color: #1e3a8a;
+        --secondary-color: #64748b;
+        --accent-color: #0f172a;
+        --success-color: #059669;
+        --warning-color: #d97706;
+        --danger-color: #dc2626;
+        --light-bg: #f8fafc;
+        --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        --card-shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Sidebar Styles - UNCHANGED */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 70px;
+        background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        z-index: 1000;
+        transition: all 0.3s ease;
+        overflow: visible;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+
+    .sidebar:hover {
+        width: 260px;
+    }
+
+    .sidebar-header {
+        padding: 1.5rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sidebar-header h4 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+        opacity: 0;
+        height: 0;
+        overflow: hidden;
+        transition:
+            opacity 0.5s ease 0.2s,
+            height 0.3s cubic-bezier(0.4,0,0.2,1) 0s;
+    }
+
+    .sidebar:hover .sidebar-header h4 {
+        opacity: 1;
+        height: 1.4em;
+        overflow: visible;
+    }
+
+    .company-logo {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.5rem;
+        font-size: 1.2rem;
+    }
+
+    .sidebar-nav {
+        padding: 1rem 0;
+        overflow: hidden;
+    }
+
+    .nav-item {
+        margin-bottom: 0.25rem;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem;
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        position: relative;
+        justify-content: center;
+        white-space: nowrap;
+        width: 100%;
+        height: 48px;
+        min-height: 48px;
+    }
+
+    .sidebar:hover .nav-link {
+        padding: 0.75rem 1.5rem;
+        justify-content: flex-start;
+    }
+
+    .nav-link:hover {
+        background-color: rgba(255,255,255,0.1);
+        color: white;
+    }
+
+    .sidebar:hover .nav-link:hover {
+        transform: translateX(5px);
+    }
+
+    .nav-link.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .nav-link.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        background: #fff;
+    }
+
+    .nav-link i {
+        width: 20px;
+        height: 20px;
+        margin-right: 0;
+        text-align: center;
+        transition: margin 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+    .sidebar:hover .nav-link i {
+        margin-right: 0.75rem;
+    }
+
+    .sidebar:not(:hover) .nav-link i {
+        margin-right: 0 !important;
+    }
+
+    .nav-text {
+        opacity: 0;
+        transition: opacity 0.3s ease 0.1s;
+        overflow: hidden;
+        width: 0;
+        display: inline-block;
+    }
+
+    .sidebar:hover .nav-text {
+        opacity: 1;
+        width: auto;
+    }
+
+    .nav-link::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        left: 70px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 1001;
+    }
+
+    .nav-link:hover::after {
+        opacity: 1;
+    }
+
+    .sidebar:hover .nav-link::after {
+        opacity: 0;
+    }
+
+    .sidebar-footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 1rem;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        background: rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        color: rgba(255,255,255,0.8);
+        justify-content: center;
+        transition: justify-content 0.3s ease;
+    }
+
+    .sidebar:hover .user-info {
+        justify-content: flex-start;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0;
+        font-size: 0.8rem;
+        transition: margin 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .sidebar:hover .user-avatar {
+        margin-right: 0.5rem;
+    }
+
+    .user-details {
+        opacity: 0;
+        transition: opacity 0.3s ease 0.1s;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .sidebar:hover .user-details {
+        opacity: 1;
+    }
+
+    .main-content {
+        margin-left: 70px;
+        transition: margin-left 0.3s ease;
+        min-height: 100vh;
+    }
+
+    .sidebar:hover ~ .main-content {
+        margin-left: 260px;
+    }
+
+    /* Professional Enterprise Styles */
+    body {
+        background-color: var(--light-bg);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        color: var(--accent-color);
+        line-height: 1.6;
+    }
+
+    .header-section {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #1e40af 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border: none;
+        box-shadow: var(--card-shadow);
+    }
+
+    .breadcrumb {
+        background: none;
+        padding: 0;
+        margin-bottom: 2rem;
+    }
+
+    .breadcrumb-item a {
+        color: var(--secondary-color);
+        text-decoration: none;
+    }
+
+    .breadcrumb-item.active {
+        color: var(--accent-color);
+        font-weight: 500;
+    }
+
+    .form-container {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: var(--card-shadow);
+        border: none;
+        margin-bottom: 2rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .section-title {
+        color: var(--accent-color);
+        font-weight: 600;
+        font-size: 1.125rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+    }
+
+    .section-title i {
+        color: var(--primary-color);
+        margin-right: 0.75rem;
+        width: 20px;
+    }
+
+    .form-label {
+        color: var(--accent-color);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .form-control, .form-select {
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        background-color: white;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        outline: none;
+    }
+
+    .form-control::placeholder {
+        color: var(--secondary-color);
+        opacity: 0.7;
+    }
+
+    .input-group-text {
+        background-color: white;
+        border: 1px solid #e2e8f0;
+        color: var(--secondary-color);
+        border-radius: 6px;
+    }
+
+    .btn-enterprise {
+        border-radius: 6px;
+        padding: 0.75rem 2rem;
+        font-weight: 500;
+        text-transform: none;
+        letter-spacing: 0;
+        transition: all 0.2s ease;
+        border: none;
+    }
+
+    .btn-primary-enterprise {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary-enterprise:hover {
+        background-color: #1e40af;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.4);
+    }
+
+    .btn-secondary-enterprise {
+        background-color: white;
+        color: var(--secondary-color);
+        border: 1px solid #e2e8f0;
+    }
+
+    .btn-secondary-enterprise:hover {
+        background-color: #f8fafc;
+        color: var(--accent-color);
+        border-color: #cbd5e1;
+    }
+
+    .required-field::after {
+        content: ' *';
+        color: var(--danger-color);
+        font-weight: bold;
+    }
+
+    .form-text {
+        color: var(--secondary-color);
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+    }
+
+    .action-buttons {
+        background: white;
+        border-top: 1px solid #e2e8f0;
+        padding: 1.5rem 0;
+        margin-top: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            width: 70px;
+        }
+
+        .sidebar:hover {
+            width: 260px;
+        }
+
+        .main-content {
+            margin-left: 70px;
+        }
+
+        .sidebar:hover ~ .main-content {
+            margin-left: 260px;
+        }
+
+        .form-container {
+            padding: 1.5rem;
+        }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar - UNCHANGED -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="company-logo">
+      <i class="fas fa-building"></i>
+    </div>
+    <h4>EMS Pro</h4>
+  </div>
+
+  <nav class="sidebar-nav">
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link" href="/dashboard" data-tooltip="Dashboard">
+          <i class="fas fa-tachometer-alt"></i>
+          <span class="nav-text">Dashboard</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/employees" data-tooltip="All Employees">
+          <i class="fas fa-users"></i>
+          <span class="nav-text">All employees</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="/employees/add" data-tooltip="Add Employee">
+          <i class="fas fa-user-plus"></i>
+          <span class="nav-text">Add employee</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/reports" data-tooltip="Reports">
+          <i class="fas fa-chart-bar"></i>
+          <span class="nav-text">Reports</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/attendance" data-tooltip="Attendance">
+          <i class="fas fa-calendar-check"></i>
+          <span class="nav-text">Attendance</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/settings" data-tooltip="Settings">
+          <i class="fas fa-cog"></i>
+          <span class="nav-text">Settings</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar">JD</div>
+      <div class="user-details">
+        <div style="font-size: 0.85rem; font-weight: 500;">Jose Daniel</div>
+        <div style="font-size: 0.7rem; opacity: 0.7;">Administrator</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content" id="mainContent">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="container-fluid">
+      <div class="row align-items-center">
+        <div class="col-md-12">
+          <h1 class="mb-0">
+            <i class="fas fa-user-edit me-3"></i>Edit Employee
+          </h1>
+          <p class="mb-0 mt-2 opacity-75">Update employee information and details</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/employees">Employees</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Edit Employee</li>
+      </ol>
+    </nav>
+
+    <!-- Employee Edit Form -->
+    <form th:action="@{/employees/edit/{employeeId}(employeeId=${employee.id})}" th:object="${employee}" method="post">
+
+      <!-- Hidden field to preserve ID -->
+      <input type="hidden" th:field="*{id}">
+
+      <div class="form-container">
+        <!-- Personal Information Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="fas fa-user"></i>Personal Information
+          </h3>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="firstName" class="form-label required-field">First Name</label>
+              <input type="text"
+                     class="form-control"
+                     id="firstName"
+                     th:field="*{firstName}"
+                     placeholder="Enter first name"
+                     required>
+              <div class="form-text">Employee's legal first name</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="lastName" class="form-label required-field">Last Name</label>
+              <input type="text"
+                     class="form-control"
+                     id="lastName"
+                     th:field="*{lastName}"
+                     placeholder="Enter last name"
+                     required>
+              <div class="form-text">Employee's legal last name</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Information Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="fas fa-address-book"></i>Contact Information
+          </h3>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="email" class="form-label required-field">Email Address</label>
+              <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                <input type="email"
+                       class="form-control"
+                       id="email"
+                       th:field="*{email}"
+                       placeholder="john.doe@company.com"
+                       required>
+              </div>
+              <div class="form-text">Corporate email address for official communication</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="phoneNumber" class="form-label">Phone Number</label>
+              <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-phone"></i>
+                                </span>
+                <input type="tel"
+                       class="form-control"
+                       id="phoneNumber"
+                       th:field="*{phoneNumber}"
+                       placeholder="+1 (555) 123-4567">
+              </div>
+              <div class="form-text">Primary contact number (optional)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Employment Details Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="fas fa-briefcase"></i>Employment Details
+          </h3>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="department" class="form-label required-field">Department</label>
+              <select class="form-select" id="department" th:field="*{department}" required>
+                <option value="">Select Department</option>
+                <option value="Engineering">Engineering</option>
+                <option value="Human Resources">Human Resources</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Sales">Sales</option>
+                <option value="Finance">Finance</option>
+                <option value="Operations">Operations</option>
+                <option value="Customer Service">Customer Service</option>
+                <option value="Legal">Legal</option>
+                <option value="IT">Information Technology</option>
+              </select>
+              <div class="form-text">Select the primary department for this employee</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="position" class="form-label required-field">Position</label>
+              <input type="text"
+                     class="form-control"
+                     id="position"
+                     th:field="*{position}"
+                     placeholder="e.g., Senior Software Engineer"
+                     required>
+              <div class="form-text">Official job title or position</div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="salary" class="form-label required-field">Annual Salary</label>
+              <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </span>
+                <input type="number"
+                       class="form-control"
+                       id="salary"
+                       th:field="*{salary}"
+                       placeholder="75000"
+                       min="0"
+                       step="1000"
+                       required>
+              </div>
+              <div class="form-text">Gross annual salary</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="hireDate" class="form-label required-field">Hire Date</label>
+              <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </span>
+                <input type="date"
+                       class="form-control"
+                       id="hireDate"
+                       th:field="*{hireDate}"
+                       required>
+              </div>
+              <div class="form-text">Official start date of employment</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <div class="d-flex justify-content-between align-items-center">
+          <a href="/employees" class="btn btn-secondary-enterprise btn-enterprise">
+            <i class="fas fa-arrow-left me-2"></i>Cancel & Return
+          </a>
+          <div>
+            <button type="reset" class="btn btn-secondary-enterprise btn-enterprise me-3">
+              <i class="fas fa-undo me-2"></i>Reset Form
+            </button>
+            <button type="submit" class="btn btn-primary-enterprise btn-enterprise">
+              <i class="fas fa-user-plus me-2"></i>Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Auto-format phone number
+  document.getElementById('phoneNumber').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length >= 10) {
+          value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+      }
+      e.target.value = value;
+  });
+
+  // Set today's date as default for hire date
+  document.addEventListener('DOMContentLoaded', function() {
+      const hireDateInput = document.getElementById('hireDate');
+      if (!hireDateInput.value) {
+          const today = new Date().toISOString().split('T')[0];
+          hireDateInput.value = today;
+      }
+  });
+
+  // Form validation feedback
+  document.querySelector('form').addEventListener('submit', function(e) {
+      const requiredFields = document.querySelectorAll('[required]');
+      let isValid = true;
+
+      requiredFields.forEach(field => {
+          if (!field.value.trim()) {
+              field.classList.add('is-invalid');
+              isValid = false;
+          } else {
+              field.classList.remove('is-invalid');
+          }
+      });
+
+      if (!isValid) {
+          e.preventDefault();
+          alert('Please fill in all required fields.');
+      }
+  });
+</script>
+
+</body>
+</html>

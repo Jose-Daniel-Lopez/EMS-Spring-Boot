@@ -442,7 +442,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary-enterprise btn-enterprise" data-bs-dismiss="modal">Cancel</button>
-                <form th:action="@{'/employees/delete/' + ${employee.id}}" method="post" class="d-inline">
+                <form th:action="@{'/employees/delete/' + ${employee.id}}" method="get" class="d-inline">
                     <button type="submit" class="btn btn-danger-enterprise btn-enterprise">
                         <i class="fas fa-user-times me-2"></i>Deactivate Employee
                     </button>

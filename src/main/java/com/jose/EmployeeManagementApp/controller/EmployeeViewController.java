@@ -8,16 +8,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.util.List;
 import java.util.Optional;
 
 @Controller
-public class ViewEmployeeController {
+public class EmployeeViewController {
 
     private final EmployeeService employeeService;
 
     @Autowired
-    public ViewEmployeeController(EmployeeService employeeService) {
+    public EmployeeViewController(EmployeeService employeeService) {
         this.employeeService = employeeService;
     }
 
